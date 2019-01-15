@@ -33,7 +33,7 @@ class ErrorHandler {
 
 		$response = $clientException->getResponse();
 
-		if ($response->json() != null) {
+		if ($response->getBody() != null) {
 			$body = $response->getBody();
 			return self::handleErrorBody($codeStatus, $body, $clientException);
 		} else if ($codeStatus == 401) {

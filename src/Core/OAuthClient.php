@@ -50,7 +50,7 @@ class OAuthClient {
 	}
 
 	private function sendRequest($url, $method, $params) {
-		$token = $this->httpClient->send($url, $method, null, $params);
+		$token = $this->httpClient->send($url, $method, [], $params);
 		if (isset($token->error)) {
 			throw new \Exception($token->error . "\n" . $token->error, 1);
 		}

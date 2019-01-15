@@ -3,7 +3,9 @@
 namespace Viagogo\Core;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\Request;
 
 /**
  *
@@ -83,12 +85,11 @@ class HttpClient {
 		if ($queryParameters) {
 			$options['query'] = $queryParameters;
 		}
-
-		$request = $this->guzzleClient->createRequest($method, $url, $options);
-		$request->setHeader('Content-Type', 'application/json');
+		$request = new Request($method, $url.'?'.http_build_query($queryParameters), [], json_encode($bodyParameters));
+		$request->withHeader('Content-Type', 'application/json');
 
 		foreach ($this->requestHeaders as $k => $v) {
-			$request->setHeader($k, $v);
+			$request->withHeader($k, $v);
 		}
 
 		try
@@ -96,9 +97,11 @@ class HttpClient {
 			$response = $this->guzzleClient->send($request);
 		} catch (RequestException $e) {
 			throw ErrorHandler::handleError($e);
-		}
+		} catch(GuzzleException $e) {
+      throw ErrorHandler::handleError($e);
+    }
 
-		$this->responseHttpStatusCode = $response->getStatusCode();
+    $this->responseHttpStatusCode = $response->getStatusCode();
 		$this->responseHeaders = $response->getHeaders();
 
 		return json_decode($response->getBody());
